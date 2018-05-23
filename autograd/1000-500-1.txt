@@ -1,0 +1,3 @@
+Simple timing
+Full  : 0.072304
+(  jac): 54.371710

@@ -17,7 +17,7 @@ np.random.seed(seed=SEED)
 # N: Number of samples
 # D: Dimension of input and of each Layer
 # L: Number of hidden layers
-N, D, L = 1000, 500, 1
+N, D, L = 16, 700, 5
 hidden_sizes = list(D for l in range(L))
 
 X_t = torch.Tensor(np.random.randn(N, D))

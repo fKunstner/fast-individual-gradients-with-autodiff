@@ -1,0 +1,126 @@
+Checking correctness
+Error on approximation 0 (naive): 0.000000
+Error on approximation 1 (goodf): 0.000000
+Error on approximation 2 (multi): 0.000000
+Simple timing
+Full  : 0.030402
+(naive): 11.402852
+(goodf): 1.706898
+(multi): 1.602292
+Profiling
+Full:
+         6873 function calls (6763 primitive calls) in 0.030 seconds
+
+   Ordered by: cumulative time
+   List reduced from 69 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.030    0.030 main.py:43(full)
+        1    0.000    0.000    0.017    0.017 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\tensor.py:65(backward)
+        1    0.000    0.000    0.017    0.017 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\autograd\__init__.py:37(backward)
+        1    0.017    0.017    0.017    0.017 {method 'run_backward' of 'torch._C._EngineBase' objects}
+        2    0.000    0.000    0.008    0.004 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\utils\data\dataloader.py:261(__next__)
+        1    0.000    0.000    0.005    0.005 C:\Users\ROUCOUPS\Workspace\ABI\fast-individual-gradients\MLP.py:25(forward)
+        1    0.000    0.000    0.004    0.004 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\utils\data\dataloader.py:264(<listcomp>)
+     1000    0.001    0.000    0.003    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\utils\data\dataset.py:39(__getitem__)
+      3/1    0.000    0.000    0.003    0.003 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\utils\data\dataloader.py:102(default_collate)
+       11    0.000    0.000    0.003    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\module.py:485(__call__)
+       11    0.000    0.000    0.003    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\linear.py:54(forward)
+        1    0.000    0.000    0.003    0.003 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\utils\data\dataloader.py:138(<listcomp>)
+       11    0.000    0.000    0.003    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\functional.py:979(linear)
+        2    0.003    0.001    0.003    0.001 {built-in method stack}
+       11    0.003    0.000    0.003    0.000 {built-in method addmm}
+     3000    0.002    0.000    0.002    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\utils\data\dataset.py:40(<genexpr>)
+       10    0.000    0.000    0.002    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\functional.py:611(relu)
+       10    0.002    0.000    0.002    0.000 {built-in method relu}
+        2    0.000    0.000    0.001    0.000 {built-in method builtins.next}
+        2    0.000    0.000    0.001    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\utils\data\sampler.py:136(__iter__)
+
+
+naive
+         694203 function calls (586201 primitive calls) in 11.656 seconds
+
+   Ordered by: cumulative time
+   List reduced from 79 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.078    0.078   11.656   11.656 main.py:57(naive)
+     1000    0.007    0.000   10.583    0.011 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\tensor.py:65(backward)
+     1000    0.007    0.000   10.576    0.011 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\autograd\__init__.py:37(backward)
+     1000   10.554    0.011   10.554    0.011 {method 'run_backward' of 'torch._C._EngineBase' objects}
+     1000    0.019    0.000    0.251    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\utils\convert_parameters.py:4(parameters_to_vector)
+    46000    0.016    0.000    0.249    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\module.py:723(parameters)
+154000/46000    0.139    0.000    0.232    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\module.py:742(named_parameters)
+     1000    0.028    0.000    0.192    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\module.py:898(zero_grad)
+     1000    0.164    0.000    0.164    0.000 {built-in method cat}
+        1    0.000    0.000    0.148    0.148 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\numpy\core\shape_base.py:182(vstack)
+        1    0.147    0.147    0.147    0.147 {built-in method numpy.core.multiarray.concatenate}
+     1000    0.011    0.000    0.141    0.000 main.py:71(<listcomp>)
+     2001    0.086    0.000    0.096    0.000 {built-in method numpy.core.multiarray.array}
+     1000    0.049    0.000    0.083    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\functional.py:1486(binary_cross_entropy_with_logits)
+        1    0.000    0.000    0.064    0.064 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\numpy\core\fromnumeric.py:2854(mean)
+        1    0.000    0.000    0.064    0.064 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\numpy\core\_methods.py:53(_mean)
+        1    0.064    0.064    0.064    0.064 {method 'reduce' of 'numpy.ufunc' objects}
+    22001    0.058    0.000    0.058    0.000 {method 'view' of 'torch._C._TensorBase' objects}
+    50000    0.036    0.000    0.043    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\module.py:787(named_children)
+    22000    0.043    0.000    0.043    0.000 {method 'zero_' of 'torch._C._TensorBase' objects}
+
+
+goodf
+         152631 function calls (152575 primitive calls) in 1.734 seconds
+
+   Ordered by: cumulative time
+   List reduced from 86 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.021    0.021    1.734    1.734 main.py:76(goodfellow)
+        1    1.137    1.137    1.449    1.449 C:\Users\ROUCOUPS\Workspace\ABI\fast-individual-gradients\goodfellow_backprop.py:4(goodfellow_backprop)
+        2    0.144    0.072    0.144    0.072 {built-in method numpy.core.multiarray.array}
+     1000    0.013    0.000    0.118    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\utils\convert_parameters.py:4(parameters_to_vector)
+        1    0.092    0.092    0.092    0.092 {built-in method zeros}
+        1    0.000    0.000    0.086    0.086 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\numpy\core\fromnumeric.py:2854(mean)
+        1    0.000    0.000    0.086    0.086 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\numpy\core\_methods.py:53(_mean)
+        1    0.086    0.086    0.086    0.086 {method 'reduce' of 'numpy.ufunc' objects}
+    11000    0.069    0.000    0.069    0.000 {built-in method ger}
+     1000    0.058    0.000    0.058    0.000 {built-in method cat}
+    22002    0.039    0.000    0.039    0.000 {method 'view' of 'torch._C._TensorBase' objects}
+        1    0.000    0.000    0.018    0.018 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\autograd\__init__.py:92(grad)
+        1    0.018    0.018    0.018    0.018 {method 'run_backward' of 'torch._C._EngineBase' objects}
+    11000    0.018    0.000    0.018    0.000 {method 'mul_' of 'torch._C._TensorBase' objects}
+        2    0.000    0.000    0.010    0.005 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\utils\data\dataloader.py:261(__next__)
+    11000    0.006    0.000    0.006    0.000 {method 'detach' of 'torch._C._TensorBase' objects}
+        1    0.001    0.001    0.006    0.006 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\utils\data\dataloader.py:264(<listcomp>)
+        1    0.000    0.000    0.006    0.006 C:\Users\ROUCOUPS\Workspace\ABI\fast-individual-gradients\MLP.py:39(forward_goodfellow)
+    22000    0.005    0.000    0.005    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\utils\convert_parameters.py:56(_check_param_device)
+     1000    0.001    0.000    0.005    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\utils\data\dataset.py:39(__getitem__)
+
+
+multi
+         861357 function calls (751303 primitive calls) in 1.634 seconds
+
+   Ordered by: cumulative time
+   List reduced from 79 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.075    0.075    1.634    1.634 main.py:91(multimod)
+        1    0.000    0.000    0.558    0.558 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\autograd\__init__.py:92(grad)
+        1    0.554    0.554    0.554    0.554 {method 'run_backward' of 'torch._C._EngineBase' objects}
+        1    0.011    0.011    0.373    0.373 main.py:117(list_of_grads_to_matrix)
+     1000    0.020    0.000    0.288    0.000 C:\Users\ROUCOUPS\Workspace\ABI\fast-individual-gradients\MLP.py:25(forward)
+    11000    0.025    0.000    0.225    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\module.py:485(__call__)
+     1000    0.011    0.000    0.214    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\utils\convert_parameters.py:4(parameters_to_vector)
+    11000    0.021    0.000    0.196    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\linear.py:54(forward)
+    46023    0.012    0.000    0.177    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\module.py:723(parameters)
+    11000    0.013    0.000    0.167    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\functional.py:979(linear)
+154077/46023    0.098    0.000    0.165    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\module.py:742(named_parameters)
+     1000    0.158    0.000    0.158    0.000 {built-in method cat}
+        1    0.000    0.000    0.147    0.147 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\numpy\core\shape_base.py:182(vstack)
+        1    0.141    0.141    0.141    0.141 {built-in method numpy.core.multiarray.concatenate}
+    11000    0.126    0.000    0.126    0.000 {built-in method addmm}
+     1000    0.006    0.000    0.093    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\modules\module.py:898(zero_grad)
+        1    0.000    0.000    0.065    0.065 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\numpy\core\fromnumeric.py:2854(mean)
+        1    0.000    0.000    0.065    0.065 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\numpy\core\_methods.py:53(_mean)
+        1    0.065    0.065    0.065    0.065 {method 'reduce' of 'numpy.ufunc' objects}
+     1000    0.031    0.000    0.048    0.000 C:\Users\ROUCOUPS\Anaconda3\envs\abi-test\lib\site-packages\torch\nn\functional.py:1486(binary_cross_entropy_with_logits)
+
+

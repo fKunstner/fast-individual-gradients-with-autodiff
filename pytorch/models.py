@@ -1,39 +1,71 @@
 import torch
 import batchFuncs as batch
+import torch.nn as nn
+import torch.nn.functional as F
 import pdb
-		
-class MLP2():
-	def __init__(self, Ds=[]):
-		self.act = batch.sigmoid
-		self.Ds = Ds
-		
-		self.params_per_layers_idx = []
-		D_curr = Ds[0]
-		param_idx = 0
-		for D_next in Ds[1:]:
-			n_params = D_curr*D_next
 
-			self.params_per_layers_idx.append(list(range(param_idx, param_idx + n_params)))
-			
-			param_idx += n_params
-			D_curr = D_next
-			
-		self.params = torch.tensor(torch.randn(param_idx), requires_grad=True)
+class MLP(nn.Module):
+	def __init__(self, input_size, hidden_sizes, output_size=None):
+		super(type(self), self).__init__()
 		
+		self.input_size = input_size
+		if output_size:
+			self.output_size = output_size
+			self.squeeze_output = False
+		else :
+			self.output_size = 1
+			self.squeeze_output = True
+		self.act = F.relu
+		
+		if len(hidden_sizes) == 0:
+			self.hidden_layers = []
+			self.output_layer = nn.Linear(self.input_size, self.output_size)
+		else:
+			self.hidden_layers = nn.ModuleList([nn.Linear(in_size, out_size) for in_size, out_size in zip([self.input_size] + hidden_sizes[:-1], hidden_sizes)])
+			self.output_layer = nn.Linear(hidden_sizes[-1], self.output_size)
+
 	def forward(self, x):
-		inputs = x.reshape(-1, self.Ds[0])
-		D_curr = self.Ds[0]
+		x = x.view(-1, self.input_size)
+		out = x
 
-		for layer_id in range(1, len(self.Ds)):
-			D_out = self.Ds[layer_id]
-			param_idx = self.params_per_layers_idx[layer_id-1]
-			W = self.params[param_idx].reshape((D_curr, D_out))
-			outputs = batch.matmul(inputs, W)
-			act = self.act(outputs)
+		for layer in self.hidden_layers:
+			Z = layer(out)
+			out = self.act(Z)
+
+		logits = self.output_layer(out)
+		if self.squeeze_output:
+			logits = torch.squeeze(logits)
 			
-			D_curr = D_out
-			inputs = act
-		return inputs
+		return logits
+
+	def forward_goodfellow(self, x):
+		x = x.view(-1, self.input_size)
+		out = x
+		
+		# Save the model inputs, which are considered the activations of the 0'th layer.
+		H_list = [out]
+		Z_list = []
+
+		for layer in self.hidden_layers:
+			Z = layer(out)
+			out = self.act(Z)
+
+			# Save the activations and linear combinations from this layer.
+			H_list.append(out)
+			Z.retain_grad()
+			Z.requires_grad_(True)
+			Z_list.append(Z)
+
+		logits = self.output_layer(out)
+		if self.squeeze_output:
+			logits = torch.squeeze(logits)
+			
+		# Save the final model ouputs, which are the linear combinations from the final layer.
+		logits.retain_grad()
+		logits.requires_grad_(True)
+		Z_list.append(logits)
+		
+		return (logits, H_list, Z_list)
 		
 class MLP2():
 	def __init__(self, Ds=[]):

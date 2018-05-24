@@ -5,8 +5,7 @@ import torch.nn.functional as F
 from torch.nn.utils import parameters_to_vector
 import pdb 
 
-from MLP import MLP 
-from models import MLP2
+from models import MLP, MLP2
 from goodfellow_backprop import goodfellow_backprop	
 from helpers import simpleTiming, profiling, check_correctness
 

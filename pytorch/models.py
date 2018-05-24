@@ -5,6 +5,9 @@ import torch.nn.functional as F
 import pdb
 
 class MLP(nn.Module):
+	"""
+	"Standard" MLP with support with goodfellow's backprop trick
+	"""
 	def __init__(self, input_size, hidden_sizes, output_size=None):
 		super(type(self), self).__init__()
 		
@@ -68,6 +71,9 @@ class MLP(nn.Module):
 		return (logits, H_list, Z_list)
 		
 class MLP2():
+	"""
+	MLP using redefined batch-ops for minibatch-backprop
+	"""
 	def __init__(self, Ds=[]):
 		self.act = batch.sigmoid
 		self.Ds = Ds

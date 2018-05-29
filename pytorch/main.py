@@ -1,173 +1,46 @@
-import numpy as np
-import torch
-import torch.utils.data
-import torch.nn.functional as F
-from torch.nn.utils import parameters_to_vector
 import pdb 
-
-from models import MLP, MLP2
-from goodfellow_backprop import goodfellow_backprop	
-from helpers import simpleTiming, profiling, check_correctness
-
-###############################################################################
-# Making up some data and model(s)
+import helpers
+from gradient_funcs import full, goodfellow, naive 
 
 def runWith(N, D, L):
-	SEED = 1
-	np.random.seed(seed=SEED)
+	X, y, model = helpers.make_data_and_model(N, D, L)
 
-	# N: Number of samples
-	# D: Dimension of input and of each Layer
-	# L: Number of hidden layers
-	hidden_sizes = list(D for l in range(L))
-
-	X_t = torch.Tensor(np.random.randn(N, D))
-	y_t = torch.Tensor(np.random.rand(N))
-	y_t1 = y_t.clone().view(-1,1)
-	dataset = torch.utils.data.TensorDataset(X_t, y_t)
-	fullbatch = torch.utils.data.DataLoader(dataset, batch_size=N)
-	individual = torch.utils.data.DataLoader(dataset, batch_size=1)
-
-	model = MLP(input_size = D, hidden_sizes = hidden_sizes)
-	model.train(True)
-
-	Ds = list(D for l in range(L+1)) + [1]
-	model2 = MLP2(Ds)
-
-	# Hack for multimod function (see below)
-	models = list()
-	for n in range(N):
-		torch.manual_seed(SEED)
-		model = MLP(input_size = D, hidden_sizes = hidden_sizes)
-		model.train(True)
-		models.append(model)
-
-	###############################################################################
-	# Different ways of computing the gradient 
-
-	def full():
-		"""
-		Computes the gradient of the complete objective function
-		"""
-		for i, (x, y) in enumerate(fullbatch):
-			model.zero_grad()
-
-			logits = model.forward(x)
-			loss = F.binary_cross_entropy_with_logits(logits.view((-1,)), y)
-			loss.backward()
-
-		grads = np.array(parameters_to_vector(list([p.grad for p in model.parameters()])))
-		return grads
-
-	import batchFuncs
-
-	def stacking():
-		"""
-		"""
-		for i, (x, y) in enumerate(fullbatch):
-			logits = model2.forward(x)
-		
-		losses = batchFuncs.logloss(logits, y_t1)
-		
-		jac_elems = N # it's really the size of one dim of the jacobian
-		
-		batch_grad_output = torch.eye(jac_elems, jac_elems).view(jac_elems, jac_elems, 1)
-		
-		jac = torch.autograd.grad(losses, model2.params, batch_grad_output)
-			
-		jacs = list()
-		for j in jac:
-			jacs.append(j.view(j.shape[0], -1))
-		cats = torch.cat(jacs, dim=1)
-		return np.mean(np.array(cats), axis=0)
-
-	def naive():
-		"""
-		Computes the predictions in a full-batch fasion,
-		then call backward on the individual losses
-		"""
-		grads = []
-		for i, (x, y) in enumerate(fullbatch):
-			logits = model.forward(x)
-
-			for j in range(logits.shape[0]):
-				model.zero_grad()
-				loss = F.binary_cross_entropy_with_logits(logits[j], y[j])
-				loss.backward(retain_graph=True)
-				
-				vectorized = parameters_to_vector(list([p.grad for p in model.parameters()]))
-				grads.append(np.array(vectorized))
-				
-		return np.mean(np.vstack(grads), axis=0)
-
-	def goodfellow():
-		"""
-		Use Goodfellow's trick to compute individual gradients.
-		Ref: Efficient per-example gradient computations
-		at: https://arxiv.org/abs/1510.01799
-		"""
-		for i, (x, y) in enumerate(fullbatch):
-			model.zero_grad()
-
-			logits, H_list, Z_list = model.forward_goodfellow(x)
-			loss = F.binary_cross_entropy_with_logits(logits.view((-1,)), y)
-				
-			gradients = goodfellow_backprop(N, H_list, torch.autograd.grad(loss, Z_list))
-		return np.mean(np.array(gradients), axis=1)
-		
-	def multimod():
-		"""
-		Define multiple copies of the parameters, such that the loss associated with
-		each sample is associated with a different set of parameters, forcing them to
-		not be aggregated.
-		
-		Inspired by 
-		https://github.com/tensorflow/tensorflow/issues/4897#issuecomment-290997283
-		
-		To do this, I have defined N copies of the model initialized at the same values.
-		"""
-		losses = list()
-		params = list()
-		
-		N_PARAMS = len(list(models[0].parameters()))
-		for i, (x, y) in enumerate(individual):
-			models[i].zero_grad()
-			logits = models[i].forward(x)
-			loss = F.binary_cross_entropy_with_logits(logits.view((-1,)), y.float())
-			
-			losses.append(loss)
-			for p in models[i].parameters():
-				params.append(p)
-			
-		allgrads = torch.autograd.grad(losses, params)
-		
-		def list_of_grads_to_matrix(list_of_grads):
-			grads = list()
-			for grad_idx in range(int(len(allgrads)/N_PARAMS)):
-				grad = list()
-				for param_idx in range(N_PARAMS):
-					grad.append(allgrads[grad_idx*N_PARAMS + param_idx])
-				grads.append(parameters_to_vector(grad))
-			return np.vstack(grads)
-
-		return np.mean(list_of_grads_to_matrix(allgrads), axis=0)
-
-	names = ["stack", "naive", "goodf", "multi"]
-	methods = [stacking, naive, goodfellow, multimod]
-
-	#check_correctness(full, names, methods)
-	simpleTiming(full, names, methods, REPEATS=1)
-	#profiling(full, names, methods)
-
-###############################################################################
-# Running the whole thing
+	names = ["Goodf", "Naive"]
+	methods = [goodfellow, naive]
+	
+	helpers.check_correctness(full, names, methods, model, X, y)
+	helpers.simpleTiming(full, names, methods, model, X, y, REPEATS=1)
+	#helpers.profiling(full, names, methods, model, X, y)
 
 setups = [
-	[16,10,1], 
-	[16,100,1], 
-	[16,1000,1], 
-	[16,5000,1], 
-	]
+	[2,3,1],
+	[10,100,10],
+	[100,100,10],
+	[100,300,3],
+	[32,300,50],
+	[1000,100,10]
+]
+
+print("README:")
+print()
+print("Parameters:")
+print("- N: Number of samples")
+print("- D: Dimensionality of the inputs and hidden layers - width of the network")
+print("- L: Number of hidden layers - depth of the network")
+print()
+print("Functions:")
+print("- Full : Computes the averaged gradient")
+print("- Naive: Compute each individual gradient by repeatedly calling backward")
+print("- Goodf: Compute the individual gradients using Goodfellow's Trick,")
+print("  which is equivalent to redefining the backward pass to _not_ aggregate individual gradients")
+print()
+print("Checking correctness is done with torch.norm()")
+print("- For the diff. to the Full gradient, we first average over the sample")
+print("- For the difference between individual gradient methods,")
+print("  we take the L2 norm between [N x ...] matrices")
+
 for setup in setups:
-	print(setup)
+	print()
+	print("Setup [N, D, L] =", setup)
+	print("---")
 	runWith(*setup)

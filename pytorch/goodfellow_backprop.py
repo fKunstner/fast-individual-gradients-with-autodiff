@@ -1,14 +1,16 @@
 import torch
 import pdb #debugging
 
-def goodfellow_backprop(H_list, Z_list):
+def goodfellow_backprop(activations, linearGrads):
 	grads = []
-	for i in range(len(Z_list)):
-		Z, H = Z_list[i], H_list[i]
-		if len(Z.shape) < 2:
-			Z = Z.unsqueeze(1)
-		Z *= Z.shape[0]
-		grads.append(torch.bmm(Z.unsqueeze(2), H.unsqueeze(1)))
-		grads.append(Z)
+	for i in range(len(linearGrads)):
+		G, X = linearGrads[i], activations[i]
+		if len(G.shape) < 2:
+			G = G.unsqueeze(1)
+		
+		G *= G.shape[0] # if the function is an average
+		
+		grads.append(torch.bmm(G.unsqueeze(2), X.unsqueeze(1)))
+		grads.append(G)
 
 	return grads

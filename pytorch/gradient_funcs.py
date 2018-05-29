@@ -44,10 +44,10 @@ def goodfellow(model, X, y):
 	"""
 	model.zero_grad()
 
-	logits, H_list, Z_list = model.forward(X)
+	logits, activations, linearCombs = model.forward(X)
 	loss = F.binary_cross_entropy_with_logits(logits.view((-1,)), y)
 	
-	Zs = torch.autograd.grad(loss, Z_list)
-	gradients = goodfellow_backprop(H_list, Zs)
+	linearGrads = torch.autograd.grad(loss, linearCombs)
+	gradients = goodfellow_backprop(activations, linearGrads)
 	
 	return gradients

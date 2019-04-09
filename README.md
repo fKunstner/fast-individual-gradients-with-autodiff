@@ -6,6 +6,10 @@ This repository now contains an implementation in pytorch of [goodfellow's trick
 
 The current implementation uses relu activation functions and for a binary classification issue, but this can be easily changed in `models.py` and does not impact the backward pass made in `goodfellow_backprop.py`.
 
+*Note*: While the title says `with-autodiff` (what I wanted), the code here does not do that.
+Instead, it is rewriting the backward pass so that the individual gradients are not summed.
+The code here only works for feedforward/MLP/linear layers with nonlinearities, and adapting it to different layers (CNN/RNN) would require quite a bit of work.
+
 ---
 
 ### Context:
